@@ -154,9 +154,6 @@ extension TaskListViewController {
             cell.textLabel?.text = newValue
             self.tableView.reloadRows(at: [indexPath], with: .automatic)
         }
-        
-        
-        
     }
     
     //Delete task
