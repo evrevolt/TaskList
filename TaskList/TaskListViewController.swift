@@ -68,8 +68,15 @@ class TaskListViewController: UITableViewController {
             guard let task = alert.textFields?.first?.text, !task.isEmpty else { return }
             save(task)
         }
+        
+        let editAction = UIAlertAction(title: "Update Task", style: .default) { [unowned self] _ in
+            guard let task = alert.textFields?.first?.text, !task.isEmpty else { return }
+            save(task)
+        }
+        
         let cancelAction = UIAlertAction(title: "Cancel", style: .destructive)
         alert.addAction(saveAction)
+        alert.addAction(editAction)
         alert.addAction(cancelAction)
         alert.addTextField { textField in
             textField.placeholder = "New Task"
@@ -94,6 +101,30 @@ class TaskListViewController: UITableViewController {
             }
         }
     }
+    
+    //Edit
+    private func editTask(_ task: Task, newName: String) {
+        do {
+            task.title = newName
+            try viewContext.save()
+        } catch let error {
+            print(error)
+        }
+    }
+    
+    //Delete
+    private func deleteTask(_ task: Task, indexPath: IndexPath) {
+        viewContext.delete(task)
+        
+        do {
+            try viewContext.save()
+            taskList.remove(at: indexPath.row)
+            tableView.deleteRows(at: [indexPath], with: .automatic)
+        } catch let error {
+            print(error)
+        }
+    }
+    
 }
 
 extension TaskListViewController {
@@ -108,5 +139,14 @@ extension TaskListViewController {
         content.text = task.title
         cell.contentConfiguration = content
         return cell
+    }
+    
+    //Delete task
+    override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
+        let task = taskList[indexPath.row]
+        
+        if editingStyle == .delete {
+            deleteTask(task, indexPath: indexPath)
+        }
     }
 }
