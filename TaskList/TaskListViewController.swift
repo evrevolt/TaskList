@@ -142,7 +142,7 @@ extension TaskListViewController {
         return cell
     }
     
-    //Edit Task
+    //Edit task
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let cell = tableView.dequeueReusableCell(withIdentifier: cellID, for: indexPath)
         let task = taskList[indexPath.row]
@@ -150,7 +150,6 @@ extension TaskListViewController {
         showAlert(withTitle: "Update Task",
                   andMessage: "Enter new name",
                   andCurrentTask: task) { (newValue) in
-            
             cell.textLabel?.text = newValue
             self.tableView.reloadRows(at: [indexPath], with: .automatic)
         }
