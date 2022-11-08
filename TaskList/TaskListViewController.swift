@@ -62,21 +62,22 @@ class TaskListViewController: UITableViewController {
         }
     }
     
-    private func showAlert(withTitle title: String, andMessage message: String) {
+    private func showAlert(withTitle title: String,
+                           andMessage message: String,
+                           andCurrentTask currentTask: Task? = nil,
+                           andNewValue newValue: ((String) -> Void)? = nil) {
         let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
         let saveAction = UIAlertAction(title: "Save", style: .default) { [unowned self] _ in
             guard let task = alert.textFields?.first?.text, !task.isEmpty else { return }
-            save(task)
-        }
-        
-        let editAction = UIAlertAction(title: "Update Task", style: .default) { [unowned self] _ in
-            guard let task = alert.textFields?.first?.text, !task.isEmpty else { return }
-            save(task)
+            
+            //В теории я хотел, чтобы выбирался, update или save, но срабатывает только save
+            currentTask != nil ? self.editTask(currentTask!, newName: task) : self.save(task)
+            if newValue != nil { newValue!(task) }
         }
         
         let cancelAction = UIAlertAction(title: "Cancel", style: .destructive)
+
         alert.addAction(saveAction)
-        alert.addAction(editAction)
         alert.addAction(cancelAction)
         alert.addTextField { textField in
             textField.placeholder = "New Task"
@@ -139,6 +140,23 @@ extension TaskListViewController {
         content.text = task.title
         cell.contentConfiguration = content
         return cell
+    }
+    
+    //Edit Task
+    override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        let cell = tableView.dequeueReusableCell(withIdentifier: cellID, for: indexPath)
+        let task = taskList[indexPath.row]
+        
+        showAlert(withTitle: "Update Task",
+                  andMessage: "Enter new name",
+                  andCurrentTask: task) { (newValue) in
+            
+            cell.textLabel?.text = newValue
+            self.tableView.reloadRows(at: [indexPath], with: .automatic)
+        }
+        
+        
+        
     }
     
     //Delete task
